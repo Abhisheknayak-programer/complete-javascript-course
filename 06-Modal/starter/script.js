@@ -16,6 +16,16 @@ const CloseModalFunc = () => {
 
 for (let i = 0; i < showModel.length; i++) {
   showModel[i].addEventListener('click', ShowModelFunc);
-  closeModalButton.addEventListener('click', CloseModalFunc);
-  overlay.addEventListener('click', CloseModalFunc);
 }
+closeModalButton.addEventListener('click', CloseModalFunc);
+overlay.addEventListener('click', CloseModalFunc);
+
+document.addEventListener('keydown', event => {
+  console.log(event);
+  if (
+    event.key === 'k' ||
+    (event.key === 'Escape' && !modal.classList.contains('hidden'))
+  ) {
+    CloseModalFunc();
+  }
+});
