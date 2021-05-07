@@ -1,7 +1,6 @@
 'use strict';
 
 /////////////////////////////////////////////////
-/////////////////////////////////////////////////
 // BANKIST APP
 
 // Data
@@ -60,6 +59,259 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
+
+
+
+
+
+// Function To display the transactions which are made
+const displayTransactions = function(movements,sort = false){
+  containerMovements.innerHTML = '';
+
+  const movs = sort ? movements.slice().sort((a,b)=> a-b) : movements;
+
+  movs.forEach(function(element,index){
+    const ValueType = element > 0 ? 'deposit' : 'withdrawal';
+
+    const htmlToAdd = `  
+    <div class="movements__row">
+      <div class="movements__type movements__type--${ValueType}">${index + 1} ${ValueType}</div>
+      <div class="movements__value">${element} $</div>
+    </div> `;
+
+    containerMovements.insertAdjacentHTML("afterbegin",htmlToAdd);
+  });
+
+}
+// displayTransactions(account1.movements);
+
+
+
+
+
+
+
+
+
+// Function to show the balance
+const displayBalance = (account) => {
+  const balance = account.movements.reduce((acc,element)=>{
+    return acc + element;
+  })  
+  account.balance = balance;
+  labelBalance.textContent = `${balance} $`
+}
+
+// displayBalance(account1.movements);
+
+
+
+
+
+
+
+
+
+
+
+
+// Function To Show The Income And Outcome
+const calcDisplayInAndOut = (account) => {
+  const income = account.movements.filter(element => element > 0).reduce((acc,element)=>{
+    return acc + element;
+  })
+
+  labelSumIn.textContent = `${income}$`
+
+  const Out = account.movements.filter(element => element < 0).reduce((acc,element)=>{
+    return acc + element;
+  })
+
+  labelSumOut.textContent = `${Math.abs(Out)}$`
+
+  const interest =account.movements.filter(element => element > 0).map(deposits => (deposits * account.interestRate)/100).filter(element => element >= 1).reduce((acc,element)=>{
+    return acc + element;
+  },0)
+
+  labelSumInterest.textContent = `${interest}$`
+}
+
+// calcDisplayInAndOut(account1.movements);
+
+
+
+
+
+
+
+// Function For Creating UserNames
+
+const CreateUserNames = (accounts) => {
+  accounts.forEach(function(account){
+    account.username = account.owner.toLowerCase().split(" ").map(name => name[0]).join('');
+  })
+}
+
+CreateUserNames(accounts);
+
+
+
+
+
+
+
+
+
+// Update UI
+const updateUi = (acc) =>{
+    // Display Movements
+    displayTransactions(acc.movements);
+
+    // Display Balance
+    displayBalance(acc);
+    
+    // Display Summary
+    calcDisplayInAndOut(acc);
+}
+
+
+
+
+
+
+
+//  Function To Check The Login Of The User
+let currentUser;
+
+btnLogin.addEventListener("click",(e)=>{
+  e.preventDefault();
+
+  currentUser = accounts.find(acc => acc.username === inputLoginUsername.value);
+
+  if(currentUser?.pin === Number(inputLoginPin.value)){
+      // Display UI and Welcome Balance
+      labelWelcome.textContent = `Welcome back, ${currentUser.owner.split(' ')[0]}`
+      containerApp.style.opacity = 1;
+     
+      // Clearing The Input Feilds
+      inputLoginUsername.value = '';
+      inputLoginPin.value = '';
+      inputLoginPin.blur();
+
+      // Updating The User Data
+      updateUi(currentUser)
+  }
+  
+})
+
+
+
+
+
+
+
+
+
+
+
+// Function transferring the money from one account to anather
+
+btnTransfer.addEventListener("click",(e)=>{
+  e.preventDefault();
+
+  const amount = Number(inputTransferAmount.value);
+  const ReceverAcc = accounts.find(acc => acc.username === inputTransferTo.value);
+
+  inputTransferAmount.value = '';
+  inputTransferTo.value = '';
+
+  if(amount > 0 && amount <= currentUser.balance && ReceverAcc && ReceverAcc?.username !== currentUser.username){
+    // Doing The Transfer
+    currentUser.movements.push(-amount);
+    ReceverAcc.movements.push(amount);
+
+    updateUi(currentUser);
+  }
+
+})
+
+
+
+
+
+
+
+
+
+
+
+// Function to delete an account 
+btnClose.addEventListener("click",(e)=>{
+  e.preventDefault();
+  if(inputCloseUsername.value === currentUser.username && Number(inputClosePin.value) === currentUser.pin){
+    const index = accounts.findIndex(acc => acc.username === currentUser.username);
+    
+    // Delete Account
+    accounts.splice(index,1);
+
+    // Hide UI
+    containerApp.style.opacity = 0;
+  }
+  // Clear The Input Fields
+  inputClosePin.value = '';
+  inputCloseUsername.value = '';
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Function To Take Loan To Account
+
+btnLoan.addEventListener("click",(e)=>{
+  e.preventDefault();
+  
+  const amount = Number(inputLoanAmount.value);
+  if(amount > 0 && currentUser.movements.some(mov => mov >= amount * 0.1)){
+    // Adding the movements
+    currentUser.movements.push(amount);
+
+    // Update UI
+    updateUi(currentUser);
+  }
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Btn Sort 
+let sorted = false;
+btnSort.addEventListener("click",(e)=>{
+  e.preventDefault();
+  displayTransactions(currentUser.movements, !sorted);
+  sorted = !sorted;
+})
+
+
+
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
