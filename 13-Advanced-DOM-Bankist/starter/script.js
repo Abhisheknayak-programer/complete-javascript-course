@@ -94,3 +94,112 @@ logo.classList.add("yourClass","SecondClass");
 logo.classList.remove("yourClass");
 logo.classList.toggle("yourClass");
 logo.classList.contains("yourClass");
+
+
+
+// Scrolling effect
+const btnScrollTo = document.querySelector(".btn--scroll-to");
+const section1 = document.querySelector("#section--1");
+
+btnScrollTo.addEventListener("click",(event)=>{
+  const s1Coordinantion = section1.getBoundingClientRect();
+  console.log(s1Coordinantion);
+  console.log(event.target.getBoundingClientRect());
+
+  console.log(`X and Y Coordinates : ${window.pageXOffset} And ${window.pageYOffset}`);
+
+  console.log(`Height And Width of the viewport : ${document.documentElement.clientHeight} and ${document.documentElement.clientWidth}`);
+
+  //// Scrolling (First Way)
+  // window.scrollTo(s1Coordinantion.left + window.pageXOffset, s1Coordinantion.top + window.pageYOffset);
+
+
+  //// Scrolling (Second Way)
+  // window.scrollTo({
+  //   left: s1Coordinantion.left + window.pageXOffset,
+  //   top: s1Coordinantion.top + window.pageYOffset,
+  //   behavior : "smooth"
+  // });
+
+
+  // Scrolling (Third Way And Only Supported In the Modern Browsers)
+  section1.scrollIntoView({behavior : "smooth"});
+
+})
+
+
+//// Navbar Smooth Scrolling Effect
+document.querySelector(".nav__links").addEventListener("click",(e)=>{
+  e.preventDefault();
+  if(e.target.classList.contains("nav__link")){
+    const id = e.target.getAttribute("href");
+    document.querySelector(id).scrollIntoView({
+      behavior : "smooth"
+    })
+  }
+})
+
+
+
+
+
+
+//// Tabbed Components
+const tabs = document.querySelectorAll(".operations__tab");
+const tabsContainer = document.querySelector(".operations__tab-container");
+const tabsContent = document.querySelectorAll(".operations__content");
+
+tabsContainer.addEventListener("click",(e)=>{
+  const clicked = e.target.closest(".operations__tab");
+
+  if(!clicked) return;
+
+  // Activating the Tab
+  tabs.forEach(tab => tab.classList.remove("operations__tab--active"));
+  clicked.classList.add("operations__tab--active");
+
+  // Activating the content
+  tabsContent.forEach(content => content.classList.remove("operations__content--active"));
+  document.querySelector(`.operations__content--${clicked.dataset.tab}`).classList.add("operations__content--active");
+
+})
+
+
+
+
+//// Nav Fade Animation
+const nav = document.querySelector(".nav");
+
+const OpactityChanger = (e,opacity) => {
+  if(e.target.classList.contains('nav__link')){
+    const link = e.target;
+    const siblings = link.closest(".nav").querySelectorAll(".nav__link");
+    const logo = link.closest(".nav").querySelector("img");
+
+    siblings.forEach(element =>{
+      if(element !== link) element.style.opacity = opacity;
+    })
+    logo.style.opacity = opacity;
+  }
+}
+
+nav.addEventListener("mouseover",(e)=>{
+  OpactityChanger(e,0.5);
+})
+
+nav.addEventListener("mouseout",(e)=>{
+  OpactityChanger(e,1);
+})
+
+
+
+
+//// Sticky NavBar On scroll
+const initialCoords = section1.getBoundingClientRect();
+window.addEventListener("scroll",()=>{
+  if(window.scrollY > initialCoords.top){
+    nav.classList.add("sticky");
+  }else{
+    nav.classList.remove("sticky");
+  }
+})
