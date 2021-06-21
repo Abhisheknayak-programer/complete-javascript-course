@@ -75,7 +75,7 @@ class App {
 
   _newWorkout(e) {
       e.preventDefault();
-    
+
       // Getting the data from the form
       const type = inputType.value;
       const distance = +inputDistance.value;
@@ -85,7 +85,7 @@ class App {
       if(type === 'running'){
         const cadence = +inputCadence.value;
         // Checking the input validation
-        if(!Number.isFinite(distance) || !Number.isFinite(duration) || !Number.isFinite(cadence)) return alert("Please Provide a Positive Number For Calculation :) ");
+        if(!Number.isFinite(distance) || !Number.isFinite(duration) || !Number.isFinite(cadence) || distance < 0 || cadence < 0 || duration < 0 ) return alert("Please Provide a Positive Number For Calculation :) ");
       }    
 
 
@@ -94,7 +94,7 @@ class App {
       if(type === 'cycling'){
         const elevation = +inputElevation.value;
         // Checking the input validation
-        if(!Number.isFinite(distance) || !Number.isFinite(duration) || !Number.isFinite(elevation)) return alert("Please Provide a Positive Number For Calculation :) ")
+        if(!Number.isFinite(distance) || !Number.isFinite(duration) || !Number.isFinite(elevation) || distance < 0 || duration < 0 ) return alert("Please Provide a Positive Number For Calculation :) ")
       }
 
 
@@ -127,9 +127,6 @@ class App {
 
       // Render workout as a list
     
-
-
-
 
 
       // Hide the form And Clearing the form when submitted
