@@ -75,10 +75,11 @@ class App {
     // When Form Submitted the map and data manipulation functionality
     form.addEventListener('submit',this._newWorkout);
 
-
-
     // To toggle the Elevation gain and the Cadence
     inputType.addEventListener('change',this._toggleElevationField);
+
+    // MAP MARKER MOVER
+    containerWorkouts.addEventListener("click",this._moveToPopup);
   }
   
 
@@ -101,7 +102,7 @@ class App {
       // console.log(latitude,longitude)
       console.log(`https://www.google.com/maps/@${latitude}${longitude}`);
 
-      const coords = [latitude, longitude];
+      const coords = [latitude,longitude];
 
       // Displaying the map in th screen here 'map' which is written down is the id of the
       // div which will contain  the map  on the screen
@@ -119,6 +120,7 @@ class App {
         inputDistance.focus();
       });
   }
+
 
 
 
@@ -245,8 +247,30 @@ class App {
       inputDistance.value = inputCadence.value = inputDuration.value = inputElevation.value = '';
       form.classList.add('hidden');
 
+
+
+      // set Local Storage
+      // localStorage.setItem('workouts',JSON.stringify(workouts));
+
+
     }
-  
+
+    _moveToPopup(e){
+      const workoutEl = e.target.closest(".workout");
+      // console.log(workoutEl);
+
+      if(!workoutEl) return;
+      
+      const workout = workouts.find(work => work.id === workoutEl.dataset.id);
+      // console.log(workout);
+
+      map.setView(workout.coords,13,{
+        animate : true,
+        pan : {
+          duration : 1
+        }
+      });
+    }
 
   }
 
