@@ -135,8 +135,6 @@ btn.addEventListener("click",function(){
     getCountryData("Bharat");
     btn.style.display = 'none';
 })
-
-
 */
 
 
@@ -145,6 +143,7 @@ btn.addEventListener("click",function(){
 
 ////////////////////////////////////////////////    USING ASYNC AWAIT   //////////////////////////////////////////
 // Getting the current position using the geolocation API
+/*
 const getPosition = function(){
    return new Promise(function(resolve,reject){
     navigator.geolocation.getCurrentPosition(resolve,reject);
@@ -172,3 +171,137 @@ btn.addEventListener('click',function(){
     whereAmI();
     btn.style.display = 'none';
 })
+
+
+*/
+
+
+///////////////////////////         Try Catch Blocks Using Async Await          ////////////////////////
+/* 
+const getPosition = function(){
+    return new Promise(function(resolve,reject){
+        navigator.geolocation.getCurrentPosition(resolve,reject)
+    });
+}
+
+const whereAmI = async function(){
+    try {
+        // Getting Position
+        const position = await getPosition();
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        const geoResponse = await fetch(`https://geocode.xyz/${latitude},${longitude}?geoit=json`); 
+        const geoData = await geoResponse.json();
+
+        
+        // Rendering the country Which is fetched Above
+        const response = await fetch(`https://restcountries.eu/rest/v2/name/${geoData.country}`);
+        const data = await response.json();
+        renderCountry(data[1]);
+
+    } catch (error) {
+        console.error(`Our Error is ${error}`);
+    }
+}
+
+
+
+btn.addEventListener('click',function(){
+    whereAmI();
+    btn.style.display = 'none';
+})
+
+*/
+
+
+
+
+
+////////////////////// Returning Values From Async Await Functions Using Promises  /////////////////////
+/*
+const getPosition = function(){
+    return new Promise(function(resolve,reject){
+        navigator.geolocation.getCurrentPosition(resolve,reject)
+    });
+}
+
+const whereAmI = async function(){
+    try {
+        // Getting Position
+        const position = await getPosition();
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        const geoResponse = await fetch(`https://geocode.xyz/${latitude},${longitude}?geoit=json`); 
+        const geoData = await geoResponse.json();
+
+        
+        // Rendering the country Which is fetched Above
+        const response = await fetch(`https://restcountries.eu/rest/v2/name/${geoData.country}`);
+        const data = await response.json();
+        renderCountry(data[1]);
+
+        return `you are in ${geoData.city} of ${geoData.country}`;
+    } catch (error) {
+        console.error(`Our Error is ${error}`);
+    }
+}
+
+
+whereAmI()
+.then(res => console.log(res))
+.catch(err => console.log(err))
+.finally(()=>console.log(`Tracked Geolocation`));
+*/
+
+
+
+
+
+////////////////////// Returning Values From Async Await Functions Using Async Await And IIFE(Immediately Invocked Fnunction Expression)  /////////////////////
+/*
+const getPosition = function(){
+    return new Promise(function(resolve,reject){
+        navigator.geolocation.getCurrentPosition(resolve,reject)
+    });
+}
+
+const whereAmI = async function(){
+    try {
+        // Getting Position
+        const position = await getPosition();
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        const geoResponse = await fetch(`https://geocode.xyz/${latitude},${longitude}?geoit=json`); 
+        const geoData = await geoResponse.json();
+
+        
+        // Rendering the country Which is fetched Above
+        const response = await fetch(`https://restcountries.eu/rest/v2/name/${geoData.country}`);
+        const data = await response.json();
+        renderCountry(data[1]);
+
+        return `you are in ${geoData.city} of ${geoData.country}`;
+    } catch (error) {
+        console.error(`Our Error is ${error}`);
+    }
+}
+
+// IIFE IMPLEMENTATION
+(async function(){  
+    try {
+        const city = whereAmI();
+        console.log(city);
+        
+    } catch (error) {
+        console.error(`My ERROR IS ${error} 💣`);
+    }
+})();
+*/
+
+
+
+
+////////////////////////////      Running Promises In Parallel      ///////////////////////////
