@@ -108,7 +108,7 @@ getCountryData("sri lanka");
 
 
 ////////////////  BEST USE CASE OF ==>>>  FETCH API | THEN() | CATCH() | FINALLY() ///////////////
-
+/*
 const getCountryData = function(country){
     fetch(`https://restcountries.eu/rest/v2/name/${country}`)
     .then(Response => Response.json())
@@ -137,3 +137,38 @@ btn.addEventListener("click",function(){
 })
 
 
+*/
+
+
+
+
+
+////////////////////////////////////////////////    USING ASYNC AWAIT   //////////////////////////////////////////
+// Getting the current position using the geolocation API
+const getPosition = function(){
+   return new Promise(function(resolve,reject){
+    navigator.geolocation.getCurrentPosition(resolve,reject);
+   })
+}
+
+
+const whereAmI = async function(){
+    const position = await getPosition();
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    const request = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    const GeoData = await request.json();
+    // console.log(GeoData.country)
+
+    // Country data
+    const res = await fetch(`https://restcountries.eu/rest/v2/name/${GeoData.country}`);
+    const data = await res.json();
+    renderCountry(data[0]);
+}
+
+
+btn.addEventListener('click',function(){
+    whereAmI();
+    btn.style.display = 'none';
+})
