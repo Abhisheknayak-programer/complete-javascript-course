@@ -363,6 +363,7 @@ getThreeCountryDetails('tanzania','portugal','usa');
 
 
 /////////////////////////////// Implementing Promise.race() ////////////////////////////////////////////
+/*
 const getJSON = function(url){
     return fetch(url).then(response =>{
         if(!response.ok) throw new Error(`Something Went Wrong ${response.status}`)
@@ -394,3 +395,41 @@ Promise.race([
     getJSON(`https://restcountries.eu/rest/v2/name/india`),
     timeout(0.05)
 ]).then(res => console.log(res[1].name)).catch(err => console.log(err))
+
+*/
+
+
+
+
+
+
+
+
+///////////////////////////////         Promise.allSettled()    ///////////////////////////////////
+/*
+Promise.allSettled([
+    Promise.resolve('Success'),
+    Promise.reject('Error'),
+    Promise.resolve('Success')
+]).then(res => console.log(res)).catch(err => console.log(err));
+
+
+Promise.all([
+    Promise.resolve('Success'),
+    Promise.reject('Error'),
+    Promise.resolve('Success')
+]).then(res => console.log(res)).catch(err => console.log(err));
+
+
+
+
+
+
+/////////////////////////////////////////////      Promise.any()[ ES2021]      /////////////////////////////
+Promise.any([
+    Promise.resolve('Success'),
+    Promise.reject('Error'),
+    Promise.resolve('Success')
+]).then(res => console.log(res)).catch(err => console.log(err));
+
+*/
