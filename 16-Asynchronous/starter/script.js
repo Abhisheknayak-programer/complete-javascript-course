@@ -304,4 +304,93 @@ const whereAmI = async function(){
 
 
 
+
+
+
+
 ////////////////////////////      Running Promises In Parallel      ///////////////////////////
+//GETJSON  IS USED TO GET THE JSON FORMAT FROM THE API 
+/*
+const getJSON = function (url, errorMsg = 'Something went wrong') {
+    return fetch(url).then(response => {
+      if (!response.ok) throw new Error(`${errorMsg} (${response.status})`);
+  
+      return response.json();
+    });
+  };
+
+  
+const getThreeCountryDetails = async function(c1,c2,c3){
+    try {
+
+    //// METHOD--1
+    // const [data1] = await getJSON(
+    // `https://restcountries.eu/rest/v2/name/${c1}`
+    // );
+    // const [data2] = await getJSON(
+    //     `https://restcountries.eu/rest/v2/name/${c2}`
+    // );
+    // const [data3] = await getJSON(
+    //     `https://restcountries.eu/rest/v2/name/${c3}`
+    // );
+    // console.log([data1.capital,data2.capital,data3.capital])
+
+
+    //// METHOD--2
+    const data = await Promise.all([
+        getJSON(`https://restcountries.eu/rest/v2/name/${c1}`),
+        getJSON(`https://restcountries.eu/rest/v2/name/${c2}`),
+        getJSON(`https://restcountries.eu/rest/v2/name/${c3}`)
+    ])
+
+    const Capitals = data.map(Eachdata => Eachdata[0].capital);
+    console.log(Capitals);
+
+} catch (error) {
+    console.log(`Our ERROR : ${error}`);
+}
+}
+
+getThreeCountryDetails('tanzania','portugal','usa');
+
+*/
+
+
+
+
+
+
+
+
+/////////////////////////////// Implementing Promise.race() ////////////////////////////////////////////
+const getJSON = function(url){
+    return fetch(url).then(response =>{
+        if(!response.ok) throw new Error(`Something Went Wrong ${response.status}`)
+        return response.json();
+    })
+}
+
+const getAnyOneCountryData = async function(c1,c2,c3){
+    const data = await Promise.race([
+        getJSON(`https://restcountries.eu/rest/v2/name/${c1}`),
+        getJSON(`https://restcountries.eu/rest/v2/name/${c2}`),
+        getJSON(`https://restcountries.eu/rest/v2/name/${c3}`)
+    ]);
+    // console.log(data[0])
+}
+getAnyOneCountryData('Italy','egypt','Mexico');
+
+
+////////////////////////////// Making it More real-world Using Promise.race([]) /////////////////////////
+const timeout = function(seconds){
+  return new Promise(function(_,reject){
+    setTimeout(function(){
+        reject(new Error(`Request Took Much Time`));
+    },seconds * 1000)    
+  })  
+} 
+
+Promise.race([
+    getJSON(`https://restcountries.eu/rest/v2/name/india`),
+    timeout(0.05)
+]).then(res => console.log(res[1].name)).catch(err => console.log(err))
