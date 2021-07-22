@@ -448,7 +448,7 @@ const controlRecipe = async () => {
     // Rendering the recipe
     _viewsRecipeViewJsDefault.default.render(_modelJs.state.recipe);
   } catch (error) {
-    alert(error);
+    _viewsRecipeViewJsDefault.default.renderError();
   }
 };
 const init = function () {
@@ -487,7 +487,7 @@ const loadRecipe = async function (id) {
     };
     console.log(state.recipe);
   } catch (error) {
-    console.log(`💥${error}💥`);
+    throw error;
   }
 };
 
@@ -1329,6 +1329,8 @@ var _fractional = require('fractional');
 class RecipeView {
   parentElement = document.querySelector('.recipe');
   data;
+  errorMessage = 'We could not find the recipe. Please try another one !';
+  successMessage = '';
   render(data) {
     this.data = data;
     const markup = this._generateMarkup();
@@ -1338,7 +1340,7 @@ class RecipeView {
   _clear() {
     this.parentElement.innerHTML = '';
   }
-  LoadSpinner = () => {
+  LoadSpinner() {
     const markup = `
         <div class="spinner">
               <svg>
@@ -1347,7 +1349,33 @@ class RecipeView {
         </div>`;
     this.parentElement.innerHTML = '';
     this.parentElement.insertAdjacentHTML('afterbegin', markup);
-  };
+  }
+  renderError(ErrorMessage = this.errorMessage) {
+    const markup = ` 
+            <div class="error">
+                <div>
+                <svg>
+                    <use href="${_urlImgIconsSvgDefault.default}#icon-alert-triangle"></use>
+                </svg>
+                </div>
+                <p>${ErrorMessage}</p>
+            </div>`;
+    this._clear();
+    this.parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+  renderSuccess(SuccessMessage = this.successMessage) {
+    const markup = `
+        <div class="message">
+            <div>
+            <svg>
+                <use href="${_urlImgIconsSvgDefault.default}#icon-smile"></use>
+            </svg>
+            </div>
+            <p>${SuccessMessage}</p>
+        </div>`;
+    this._clear();
+    this.parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
   addHandlerRender(handler) {
     ['hashchange', 'load'].forEach(event => window.addEventListener(event, handler));
   }
