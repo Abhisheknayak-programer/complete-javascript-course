@@ -436,7 +436,6 @@ require('core-js/stable');
 require('regenerator-runtime/runtime');
 var _viewsRecipeViewJsDefault = _parcelHelpers.interopDefault(_viewsRecipeViewJs);
 const recipeContainer = document.querySelector('.recipe');
-// https://forkify-api.herokuapp.com/v2
 // /////////////////////////////////////
 // Loading The recipe
 const controlRecipe = async () => {
@@ -452,11 +451,10 @@ const controlRecipe = async () => {
     alert(error);
   }
 };
-// Listening For the Hash and load of window
-// window.addEventListener('hashchange',controlRecipe);
-// window.addEventListener('load',controlRecipe);
-// More Modern Way for Above Two Codes
-['hashchange', 'load'].forEach(event => window.addEventListener(event, controlRecipe));
+const init = function () {
+  _viewsRecipeViewJsDefault.default.addHandlerRender(controlRecipe);
+};
+init();
 
 },{"./model.js":"1hp6y","./views/recipeView.js":"9e6b9","core-js/stable":"1PFvP","regenerator-runtime/runtime":"62Qib","@parcel/transformer-js/lib/esmodule-helpers.js":"5gA8y"}],"1hp6y":[function(require,module,exports) {
 var _parcelHelpers = require("@parcel/transformer-js/lib/esmodule-helpers.js");
@@ -1350,6 +1348,9 @@ class RecipeView {
     this.parentElement.innerHTML = '';
     this.parentElement.insertAdjacentHTML('afterbegin', markup);
   };
+  addHandlerRender(handler) {
+    ['hashchange', 'load'].forEach(event => window.addEventListener(event, handler));
+  }
   _generateMarkup() {
     return ` 
             <figure class="recipe__fig">

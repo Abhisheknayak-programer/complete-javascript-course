@@ -8,9 +8,6 @@ import recipeView from './views/recipeView.js';
 
 const recipeContainer = document.querySelector('.recipe');
 
-
-// https://forkify-api.herokuapp.com/v2
-
 ///////////////////////////////////////
 
 // Loading The recipe
@@ -34,14 +31,7 @@ const controlRecipe = async () =>{
 }
 
 
-
-
-
-
-
-// Listening For the Hash and load of window
-// window.addEventListener('hashchange',controlRecipe);
-// window.addEventListener('load',controlRecipe);
-
-// More Modern Way for Above Two Codes
-['hashchange','load'].forEach(event => window.addEventListener(event,controlRecipe));
+const init = function(){
+  recipeView.addHandlerRender(controlRecipe);
+}
+init();
