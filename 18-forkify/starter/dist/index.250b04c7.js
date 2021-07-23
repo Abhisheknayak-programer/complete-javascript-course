@@ -1414,9 +1414,7 @@ class RecipeView extends _viewsDefault.default {
                 </div>
 
                 <div class="recipe__user-generated">
-                <svg>
-                    <use href="${_urlImgIconsSvgDefault.default}#icon-user"></use>
-                </svg>
+                
                 </div>
                 <button class="btn--round">
                 <svg class="">
@@ -1894,6 +1892,7 @@ var _urlImgIconsSvgDefault = _parcelHelpers.interopDefault(_urlImgIconsSvg);
 class view {
   data;
   render(data) {
+    if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
     this.data = data;
     const markup = this._generateMarkup();
     this._clear();
@@ -13652,11 +13651,12 @@ var _views = require('./views');
 var _viewsDefault = _parcelHelpers.interopDefault(_views);
 class resultsView extends _viewsDefault.default {
   parentElement = document.querySelector('.results');
+  errorMessage = 'No recipes found according to your query! please try again ;)';
+  successMessage = '';
   _generateMarkup() {
     return this.data.map(this._generateMarkupPreview).join('');
   }
   _generateMarkupPreview(item) {
-    console.log(item);
     return `
             <li class="preview">
                 <a class="preview__link" href="#${item.id}">

@@ -3,6 +3,7 @@ export default class view{
     data;
 
     render(data){
+        if(!data || Array.isArray(data) && data.length === 0) return this.renderError();
         this.data = data;
         const markup = this._generateMarkup();
         this._clear();

@@ -3,13 +3,14 @@ import view from './views';
 
 class resultsView extends view{
     parentElement = document.querySelector('.results');
+    errorMessage = 'No recipes found according to your query! please try again ;)';
+    successMessage = '';
 
     _generateMarkup(){
         return this.data.map(this._generateMarkupPreview).join('');
      }
 
     _generateMarkupPreview(item){
-        console.log(item)
         return `
             <li class="preview">
                 <a class="preview__link" href="#${item.id}">
