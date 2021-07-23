@@ -1,11 +1,11 @@
 import * as model from './model.js';
 import RecipeView from './views/recipeView.js';
-import SearchView from './searchView.js';
+import SearchView from './views/searchView.js';
 
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import recipeView from './views/recipeView.js';
-import searchView from './searchView.js';
+import resultsView from './views/resultsView.js';
 
 // Loading The recipe
 const controlRecipe = async () =>{
@@ -30,6 +30,8 @@ const controlRecipe = async () =>{
 
 const SearchResultsController = async function(){
   try {
+    resultsView.LoadSpinner();
+
     // 1. Get Search Query
     const SearchQuery = SearchView.getQuery();
     if(!SearchQuery) return;
@@ -39,8 +41,9 @@ const SearchResultsController = async function(){
 
     // 3. Render Results
     console.log(model.state.search.results);
+    resultsView.render(model.state.search.results);
   } catch (error) {
-    recipeView.renderError();
+
   }
 }
 SearchResultsController();
@@ -48,6 +51,6 @@ SearchResultsController();
 
 const init = function(){
   recipeView.addHandlerRender(controlRecipe);
-  searchView.addHandlerSearch(SearchResultsController);
+  SearchView.addHandlerSearch(SearchResultsController);
 }
 init();

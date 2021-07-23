@@ -1,65 +1,11 @@
 import icons from 'url:../../img/icons.svg';
 import {Fraction} from 'fractional';
+import view from './views';
 
-class RecipeView {
+class RecipeView extends view{
     parentElement = document.querySelector('.recipe');
-    data;
     errorMessage = 'We could not find the recipe. Please try another one !';
     successMessage = '';
-
-    render(data){
-        this.data = data;
-        const markup = this._generateMarkup();
-        this._clear();
-        this.parentElement.insertAdjacentHTML('afterbegin',markup);
-    }
-
-    _clear(){
-        this.parentElement.innerHTML = '';
-    }
-
-    LoadSpinner(){
-        const markup = `
-        <div class="spinner">
-              <svg>
-                <use href="${icons}#icon-loader"></use>
-              </svg>
-        </div>`;
-        this.parentElement.innerHTML = '';
-        this.parentElement.insertAdjacentHTML('afterbegin',markup);
-    }
-
-
-    renderError(ErrorMessage = this.errorMessage){
-        const markup = ` 
-            <div class="error">
-                <div>
-                <svg>
-                    <use href="${icons}#icon-alert-triangle"></use>
-                </svg>
-                </div>
-                <p>${ErrorMessage}</p>
-            </div>`;
-
-        this._clear();
-        this.parentElement.insertAdjacentHTML('afterbegin',markup);   
-    }
-
-    renderSuccess(SuccessMessage = this.successMessage){
-        const markup = `
-        <div class="message">
-            <div>
-            <svg>
-                <use href="${icons}#icon-smile"></use>
-            </svg>
-            </div>
-            <p>${SuccessMessage}</p>
-        </div>`;
-
-        this._clear();
-        this.parentElement.insertAdjacentHTML('afterbegin',markup);   
-    }
-
 
     addHandlerRender(handler){
     ['hashchange','load'].forEach(event => window.addEventListener(event,handler));
