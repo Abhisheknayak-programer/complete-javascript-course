@@ -447,9 +447,11 @@ const controlRecipe = async () => {
     const id = window.location.hash.slice(1);
     if (!id) return;
     _viewsRecipeViewJsDefault.default.LoadSpinner();
+    // 0. Update Result View To Mark Selected
+    _viewsResultsViewJsDefault.default.update(_modelJs.getTenSearchResults());
     // 1. Loading Recipe
     await _modelJs.loadRecipe(id);
-    // Rendering the recipe
+    // 2. Rendering the recipe
     _viewsRecipeViewJsDefault.default.render(_modelJs.state.recipe);
   } catch (error) {
     _viewsRecipeViewJsDefault.default.renderError();
@@ -481,7 +483,7 @@ const controlServings = function (newServings) {
   // Updating the Recipe Servings (in state)
   _modelJs.updateServings(newServings);
   // Update the recipe view
-  _viewsRecipeViewJsDefault.default.render(_modelJs.state.recipe);
+  _viewsRecipeViewJsDefault.default.update(_modelJs.state.recipe);
 };
 const init = function () {
   _viewsRecipeViewJsDefault.default.addHandlerRender(controlRecipe);
@@ -1948,6 +1950,22 @@ class view {
     const markup = this._generateMarkup();
     this._clear();
     this.parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+  update(data) {
+    this.data = data;
+    const NewMarkup = this._generateMarkup();
+    let newDom = document.createRange().createContextualFragment(NewMarkup);
+    let newElements = Array.from(newDom.querySelectorAll('*'));
+    let currentElement = Array.from(this.parentElement.querySelectorAll('*'));
+    newElements.forEach((newEl, index) => {
+      let curEl = currentElement[index];
+      if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue?.trim?.() !== '') {
+        curEl.textContent = newEl.textContent;
+      }
+      if (!newEl.isEqualNode(curEl)) {
+        Array.from(newEl.attributes).forEach(Attr => curEl.setAttribute(Attr.name, Attr.value));
+      }
+    });
   }
   _clear() {
     this.parentElement.innerHTML = '';
@@ -13708,9 +13726,10 @@ class resultsView extends _viewsDefault.default {
     return this.data.map(this._generateMarkupPreview).join('');
   }
   _generateMarkupPreview(item) {
+    const id = window.location.hash.slice(1);
     return `
             <li class="preview">
-                <a class="preview__link" href="#${item.id}">
+                <a class="preview__link ${item.id === id ? 'preview__link--active' : ''}" href="#${item.id}">
                     <figure class="preview__fig">
                         <img src="${item.image_url}" alt="Test" />
                     </figure>

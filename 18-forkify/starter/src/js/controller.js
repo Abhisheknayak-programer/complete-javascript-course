@@ -16,10 +16,13 @@ const controlRecipe = async () =>{
   if(!id) return;
   recipeView.LoadSpinner();
 
+  // 0. Update Result View To Mark Selected
+  resultsView.update(model.getTenSearchResults()); 
+
   //1. Loading Recipe
   await model.loadRecipe(id);
 
-  // Rendering the recipe
+  //2. Rendering the recipe
   RecipeView.render(model.state.recipe);
 } catch (error) {
     recipeView.renderError();
@@ -65,7 +68,7 @@ const controlServings = function(newServings){
   model.updateServings(newServings);
 
   // Update the recipe view
-  RecipeView.render(model.state.recipe);
+  RecipeView.update(model.state.recipe);
 }
 
 

@@ -10,6 +10,26 @@ export default class view{
         this.parentElement.insertAdjacentHTML('afterbegin',markup);
     }
 
+    update(data){
+        this.data = data;
+        const NewMarkup = this._generateMarkup();
+
+        let newDom = document.createRange().createContextualFragment(NewMarkup);
+        let newElements = Array.from(newDom.querySelectorAll('*'));
+        let currentElement = Array.from(this.parentElement.querySelectorAll('*'));
+
+        newElements.forEach((newEl,index)=>{
+            let curEl = currentElement[index];
+            if(!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== ''){
+                curEl.textContent = newEl.textContent;
+            }
+
+            if(!newEl.isEqualNode(curEl)){
+                Array.from(newEl.attributes).forEach(Attr => curEl.setAttribute(Attr.name,Attr.value))
+            }
+        })        
+    }
+
     _clear(){
         this.parentElement.innerHTML = '';
     }
