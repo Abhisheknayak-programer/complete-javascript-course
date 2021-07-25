@@ -9,7 +9,8 @@ export const state = {
         results : [],
         page : 1,
         resultsPerPage : RESULTS_PER_PAGE,
-    }
+    },
+    bookmarks : []
 }
 
 //  Loading Recipe
@@ -28,7 +29,13 @@ export const loadRecipe = async function(id){
           cookingTime : recipe.cooking_time,
           ingredients : recipe.ingredients
         }
-        // console.log(state.recipe);
+
+        if(state.bookmarks.some(bookmark => bookmark.id === id)){
+            state.recipe.bookmarked = true;
+        }else{
+            state.recipe.bookmarked = false;
+        }
+
     } catch (error) {
         throw error;
     }
@@ -47,8 +54,8 @@ export const LoadSearchResults = async function(Query){
                 publisher : recipe.publisher,
                 image : recipe.image_url,
             }
-        })
-
+        });
+        state.search.page = 1;
     }catch(err){
         throw err;
     }
@@ -74,3 +81,45 @@ export const updateServings = function(newServings){
 
     state.recipe.servings = newServings;
 }
+
+
+// Adding Bookmarks to the localstorage
+const persistBookmark = function(){
+    localStorage.setItem('bookmarks',JSON.stringify(state.bookmarks));
+}
+
+
+export const AddBookMark = function(recipe){
+    // Add Bookmark
+    state.bookmarks.push(recipe);
+
+    // Mark Current Recipe If that is a Bookmarked
+    if(recipe.id === state.recipe.id){
+        state.recipe.bookmarked = true;
+    }
+
+    persistBookmark();
+}
+
+
+export const deleteBookMark = function(id){
+    // Delete BookMarked
+    const DeletingIndex = state.bookmarks.findIndex(element => element.id === id);
+    state.bookmarks.splice(DeletingIndex,1);
+
+    // Mark Current Recipe If that is a Bookmarked
+    if(id === state.recipe.id){
+        state.recipe.bookmarked = false;
+    }
+
+    persistBookmark();
+}
+
+
+const initBookmarksAtBeginFromLocalHost = function(){
+    const storage = localStorage.getItem('bookmarks');
+    if(storage){
+        state.bookmarks = JSON.parse(storage);
+    }
+}
+initBookmarksAtBeginFromLocalHost();

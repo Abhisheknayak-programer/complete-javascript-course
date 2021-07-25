@@ -2,11 +2,12 @@ import * as model from './model.js';
 import RecipeView from './views/recipeView.js';
 import SearchView from './views/searchView.js';
 import PaginationView from './views/paginationView.js';
+import recipeView from './views/recipeView.js';
+import resultsView from './views/resultsView.js';
+import bookmarksView from './views/bookmarksView.js';
 
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import recipeView from './views/recipeView.js';
-import resultsView from './views/resultsView.js';
 
 // Loading The recipe
 const controlRecipe = async () =>{
@@ -16,13 +17,14 @@ const controlRecipe = async () =>{
   if(!id) return;
   recipeView.LoadSpinner();
 
-  // 0. Update Result View To Mark Selected
+  // 1. Update Result View To Mark Selected
   resultsView.update(model.getTenSearchResults()); 
+  bookmarksView.update(model.state.bookmarks);
 
-  //1. Loading Recipe
+  // 2. Loading Recipe
   await model.loadRecipe(id);
 
-  //2. Rendering the recipe
+  // 3. Rendering the recipe
   RecipeView.render(model.state.recipe);
 } catch (error) {
     recipeView.renderError();
@@ -72,9 +74,32 @@ const controlServings = function(newServings){
 }
 
 
+const controlBookmark = function(){
+  // 1. Add or remove Bookmarks
+  if(!model.state.recipe.bookmarked){
+    model.AddBookMark(model.state.recipe);
+  }else{
+    model.deleteBookMark(model.state.recipe.id);
+  } 
+
+  // 2. Update the recipe view
+  recipeView.update(model.state.recipe);
+
+  // 3. Rendering the bookmarks
+  bookmarksView.render(model.state.bookmarks)
+}
+
+
+const controlBookmarkOnLoad = function(){
+  bookmarksView.render(model.state.bookmarks);
+}
+
+
 const init = function(){
+  bookmarksView.addLoadWindowBookmarkhandler(controlBookmarkOnLoad);
   recipeView.addHandlerRender(controlRecipe);
   recipeView.addHandlerUpdateServings(controlServings);
+  recipeView.addHandlerAddBookmark(controlBookmark);
   SearchView.addHandlerSearch(SearchResultsController);
   PaginationView.addEventClicked(controlPagination);
 }

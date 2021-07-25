@@ -436,22 +436,25 @@ var _viewsSearchViewJs = require('./views/searchView.js');
 var _viewsSearchViewJsDefault = _parcelHelpers.interopDefault(_viewsSearchViewJs);
 var _viewsPaginationViewJs = require('./views/paginationView.js');
 var _viewsPaginationViewJsDefault = _parcelHelpers.interopDefault(_viewsPaginationViewJs);
-require('core-js/stable');
-require('regenerator-runtime/runtime');
 var _viewsRecipeViewJsDefault = _parcelHelpers.interopDefault(_viewsRecipeViewJs);
 var _viewsResultsViewJs = require('./views/resultsView.js');
 var _viewsResultsViewJsDefault = _parcelHelpers.interopDefault(_viewsResultsViewJs);
+var _viewsBookmarksViewJs = require('./views/bookmarksView.js');
+var _viewsBookmarksViewJsDefault = _parcelHelpers.interopDefault(_viewsBookmarksViewJs);
+require('core-js/stable');
+require('regenerator-runtime/runtime');
 // Loading The recipe
 const controlRecipe = async () => {
   try {
     const id = window.location.hash.slice(1);
     if (!id) return;
     _viewsRecipeViewJsDefault.default.LoadSpinner();
-    // 0. Update Result View To Mark Selected
+    // 1. Update Result View To Mark Selected
     _viewsResultsViewJsDefault.default.update(_modelJs.getTenSearchResults());
-    // 1. Loading Recipe
+    _viewsBookmarksViewJsDefault.default.update(_modelJs.state.bookmarks);
+    // 2. Loading Recipe
     await _modelJs.loadRecipe(id);
-    // 2. Rendering the recipe
+    // 3. Rendering the recipe
     _viewsRecipeViewJsDefault.default.render(_modelJs.state.recipe);
   } catch (error) {
     _viewsRecipeViewJsDefault.default.renderError();
@@ -485,15 +488,32 @@ const controlServings = function (newServings) {
   // Update the recipe view
   _viewsRecipeViewJsDefault.default.update(_modelJs.state.recipe);
 };
+const controlBookmark = function () {
+  // 1. Add or remove Bookmarks
+  if (!_modelJs.state.recipe.bookmarked) {
+    _modelJs.AddBookMark(_modelJs.state.recipe);
+  } else {
+    _modelJs.deleteBookMark(_modelJs.state.recipe.id);
+  }
+  // 2. Update the recipe view
+  _viewsRecipeViewJsDefault.default.update(_modelJs.state.recipe);
+  // 3. Rendering the bookmarks
+  _viewsBookmarksViewJsDefault.default.render(_modelJs.state.bookmarks);
+};
+const controlBookmarkOnLoad = function () {
+  _viewsBookmarksViewJsDefault.default.render(_modelJs.state.bookmarks);
+};
 const init = function () {
+  _viewsBookmarksViewJsDefault.default.addLoadWindowBookmarkhandler(controlBookmarkOnLoad);
   _viewsRecipeViewJsDefault.default.addHandlerRender(controlRecipe);
   _viewsRecipeViewJsDefault.default.addHandlerUpdateServings(controlServings);
+  _viewsRecipeViewJsDefault.default.addHandlerAddBookmark(controlBookmark);
   _viewsSearchViewJsDefault.default.addHandlerSearch(SearchResultsController);
   _viewsPaginationViewJsDefault.default.addEventClicked(controlPagination);
 };
 init();
 
-},{"./model.js":"1hp6y","./views/recipeView.js":"9e6b9","core-js/stable":"1PFvP","regenerator-runtime/runtime":"62Qib","@parcel/transformer-js/lib/esmodule-helpers.js":"5gA8y","./views/searchView.js":"3rYQ6","./views/resultsView.js":"17PYN","./views/paginationView.js":"5u5Fw"}],"1hp6y":[function(require,module,exports) {
+},{"./model.js":"1hp6y","./views/recipeView.js":"9e6b9","core-js/stable":"1PFvP","regenerator-runtime/runtime":"62Qib","@parcel/transformer-js/lib/esmodule-helpers.js":"5gA8y","./views/searchView.js":"3rYQ6","./views/resultsView.js":"17PYN","./views/paginationView.js":"5u5Fw","./views/bookmarksView.js":"2EbNZ"}],"1hp6y":[function(require,module,exports) {
 var _parcelHelpers = require("@parcel/transformer-js/lib/esmodule-helpers.js");
 _parcelHelpers.defineInteropFlag(exports);
 _parcelHelpers.export(exports, "state", function () {
@@ -511,6 +531,12 @@ _parcelHelpers.export(exports, "getTenSearchResults", function () {
 _parcelHelpers.export(exports, "updateServings", function () {
   return updateServings;
 });
+_parcelHelpers.export(exports, "AddBookMark", function () {
+  return AddBookMark;
+});
+_parcelHelpers.export(exports, "deleteBookMark", function () {
+  return deleteBookMark;
+});
 require("regenerator-runtime");
 var _config = require("./config");
 var _helpers = require("./helpers");
@@ -521,7 +547,8 @@ const state = {
     results: [],
     page: 1,
     resultsPerPage: _config.RESULTS_PER_PAGE
-  }
+  },
+  bookmarks: []
 };
 const loadRecipe = async function (id) {
   try {
@@ -537,6 +564,11 @@ const loadRecipe = async function (id) {
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients
     };
+    if (state.bookmarks.some(bookmark => bookmark.id === id)) {
+      state.recipe.bookmarked = true;
+    } else {
+      state.recipe.bookmarked = false;
+    }
   } catch (error) {
     throw error;
   }
@@ -554,6 +586,7 @@ const LoadSearchResults = async function (Query) {
         image: recipe.image_url
       };
     });
+    state.search.page = 1;
   } catch (err) {
     throw err;
   }
@@ -571,6 +604,36 @@ const updateServings = function (newServings) {
   });
   state.recipe.servings = newServings;
 };
+// Adding Bookmarks to the localstorage
+const persistBookmark = function () {
+  localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
+const AddBookMark = function (recipe) {
+  // Add Bookmark
+  state.bookmarks.push(recipe);
+  // Mark Current Recipe If that is a Bookmarked
+  if (recipe.id === state.recipe.id) {
+    state.recipe.bookmarked = true;
+  }
+  persistBookmark();
+};
+const deleteBookMark = function (id) {
+  // Delete BookMarked
+  const DeletingIndex = state.bookmarks.findIndex(element => element.id === id);
+  state.bookmarks.splice(DeletingIndex, 1);
+  // Mark Current Recipe If that is a Bookmarked
+  if (id === state.recipe.id) {
+    state.recipe.bookmarked = false;
+  }
+  persistBookmark();
+};
+const initBookmarksAtBeginFromLocalHost = function () {
+  const storage = localStorage.getItem('bookmarks');
+  if (storage) {
+    state.bookmarks = JSON.parse(storage);
+  }
+};
+initBookmarksAtBeginFromLocalHost();
 
 },{"regenerator-runtime":"62Qib","./config":"6pr2F","./helpers":"581KF","@parcel/transformer-js/lib/esmodule-helpers.js":"5gA8y"}],"62Qib":[function(require,module,exports) {
 /**
@@ -1428,6 +1491,13 @@ class RecipeView extends _viewsDefault.default {
       if (updateTo > 0) handler(updateTo);
     });
   }
+  addHandlerAddBookmark(handler) {
+    this.parentElement.addEventListener('click', function (e) {
+      const btnClicked = e.target.closest('.btn--bookmark');
+      if (!btnClicked) return;
+      handler();
+    });
+  }
   _generateMarkup() {
     return ` 
             <figure class="recipe__fig">
@@ -1469,10 +1539,10 @@ class RecipeView extends _viewsDefault.default {
                 <div class="recipe__user-generated">
                 
                 </div>
-                <button class="btn--round">
-                <svg class="">
-                    <use href="${_urlImgIconsSvgDefault.default}#icon-bookmark-fill"></use>
-                </svg>
+                <button class="btn--round btn--bookmark">
+                    <svg class="">
+                        <use href="${_urlImgIconsSvgDefault.default}#icon-bookmark${this.data.bookmarked ? '-fill' : ''}"></use>
+                    </svg>
                 </button>
             </div>
 
@@ -13806,6 +13876,40 @@ class paginationView extends _viewsDefault.default {
 }
 exports.default = new paginationView();
 
-},{"./views":"6wmKf","url:../../img/icons.svg":"3t5dV","@parcel/transformer-js/lib/esmodule-helpers.js":"5gA8y"}]},["7BONy","3miIZ"], "3miIZ", "parcelRequire37be")
+},{"./views":"6wmKf","url:../../img/icons.svg":"3t5dV","@parcel/transformer-js/lib/esmodule-helpers.js":"5gA8y"}],"2EbNZ":[function(require,module,exports) {
+var _parcelHelpers = require("@parcel/transformer-js/lib/esmodule-helpers.js");
+_parcelHelpers.defineInteropFlag(exports);
+require('url:../../img/icons.svg');
+var _views = require('./views');
+var _viewsDefault = _parcelHelpers.interopDefault(_views);
+class BookMarksView extends _viewsDefault.default {
+  parentElement = document.querySelector('.bookmarks__list');
+  errorMessage = 'No bookmarks yet. Find a nice recipe and bookmark it ;)';
+  successMessage = '';
+  addLoadWindowBookmarkhandler(handler) {
+    window.addEventListener('load', handler);
+  }
+  _generateMarkup() {
+    return this.data.map(this._generateMarkupPreview).join('');
+  }
+  _generateMarkupPreview(item) {
+    const id = window.location.hash.slice(1);
+    return `
+            <li class="preview">
+                <a class="preview__link ${item.id === id ? 'preview__link--active' : ''}" href="#${item.id}">
+                    <figure class="preview__fig">
+                        <img src="${item.image}" alt="Test" />
+                    </figure>
+                    <div class="preview__data">
+                        <h4 class="preview__title">${item.title}</h4>
+                        <p class="preview__publisher">${item.publisher}</p>
+                    </div>
+                </a>
+            </li>`;
+  }
+}
+exports.default = new BookMarksView();
+
+},{"url:../../img/icons.svg":"3t5dV","./views":"6wmKf","@parcel/transformer-js/lib/esmodule-helpers.js":"5gA8y"}]},["7BONy","3miIZ"], "3miIZ", "parcelRequire37be")
 
 //# sourceMappingURL=index.250b04c7.js.map
