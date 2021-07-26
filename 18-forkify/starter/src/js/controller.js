@@ -96,8 +96,29 @@ const controlBookmarkOnLoad = function(){
 }
 
 
-const controlAddRecipe = function(newRecipe){
-  console.log(newRecipe);
+const controlAddRecipe =  async function(newRecipe){
+  try {
+  // Loading Spinner Render
+    addrecipeView.LoadSpinner();
+
+  // Uploading Data
+   await model.uploadRecipe(newRecipe);
+   console.log(model.state.recipe);
+
+  // Rendering Recipe
+    recipeView.render(model.state.recipe);
+
+  // Success Message 
+    addrecipeView.renderSuccess();
+
+  // Close Form Window
+  // setTimeout(function(){
+  //   // addrecipeView.toggleWindow();
+  // },2500);
+
+} catch (err) {
+   addrecipeView.renderError(err.message);
+ }
 } 
 
 const init = function(){

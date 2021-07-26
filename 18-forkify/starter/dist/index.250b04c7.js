@@ -505,8 +505,20 @@ const controlBookmark = function () {
 const controlBookmarkOnLoad = function () {
   _viewsBookmarksViewJsDefault.default.render(_modelJs.state.bookmarks);
 };
-const controlAddRecipe = function (newRecipe) {
-  console.log(newRecipe);
+const controlAddRecipe = async function (newRecipe) {
+  try {
+    // Loading Spinner Render
+    _viewsAddrecipeViewJsDefault.default.LoadSpinner();
+    // Uploading Data
+    await _modelJs.uploadRecipe(newRecipe);
+    console.log(_modelJs.state.recipe);
+    // Rendering Recipe
+    _viewsRecipeViewJsDefault.default.render(_modelJs.state.recipe);
+    // Success Message
+    _viewsAddrecipeViewJsDefault.default.renderSuccess();
+  } catch (err) {
+    _viewsAddrecipeViewJsDefault.default.renderError(err.message);
+  }
 };
 const init = function () {
   _viewsBookmarksViewJsDefault.default.addLoadWindowBookmarkhandler(controlBookmarkOnLoad);
@@ -542,6 +554,9 @@ _parcelHelpers.export(exports, "AddBookMark", function () {
 });
 _parcelHelpers.export(exports, "deleteBookMark", function () {
   return deleteBookMark;
+});
+_parcelHelpers.export(exports, "uploadRecipe", function () {
+  return uploadRecipe;
 });
 require("regenerator-runtime");
 var _config = require("./config");
@@ -640,6 +655,46 @@ const initBookmarksAtBeginFromLocalHost = function () {
   }
 };
 initBookmarksAtBeginFromLocalHost();
+const uploadRecipe = async function (newRecipe) {
+  try {
+    const ingredients = Object.entries(newRecipe).filter(element => element[0].startsWith('ingredient') && element[1] !== '').map(ing => {
+      const ingArr = ing[1].replaceAll(' ', '').split(',');
+      if (ingArr.length !== 3) throw new Error('Wrong ingredient format. Please use the correct format :) ');
+      const [quantity, unit, description] = ingArr;
+      return {
+        quantity: quantity ? +quantity : null,
+        unit,
+        description
+      };
+    });
+    const recipe = {
+      title: newRecipe.title,
+      source_url: newRecipe.sourceUrl,
+      image_url: newRecipe.image,
+      publisher: newRecipe.publisher,
+      cooking_time: +newRecipe.cookingTime,
+      servings: +newRecipe.servings,
+      ingredients
+    };
+    const data = await _helpers.Sendjson(`${_config.API_URL}?key=${_config.API_KEY}`, recipe);
+    console.log(data);
+    const newrecipe = data.data.recipe;
+    state.recipe = {
+      id: newrecipe.id,
+      title: newrecipe.title,
+      publisher: newrecipe.publisher,
+      sourceUrl: newrecipe.source_url,
+      image: newrecipe.image_url,
+      servings: newrecipe.servings,
+      cookingTime: newrecipe.cooking_time,
+      ingredients: newrecipe.ingredients,
+      key: newrecipe.key
+    };
+    AddBookMark(state.recipe);
+  } catch (error) {
+    throw error;
+  }
+};
 
 },{"regenerator-runtime":"62Qib","./config":"6pr2F","./helpers":"581KF","@parcel/transformer-js/lib/esmodule-helpers.js":"5gA8y"}],"62Qib":[function(require,module,exports) {
 /**
@@ -1403,9 +1458,13 @@ _parcelHelpers.export(exports, "TIMEOUT_SEC", function () {
 _parcelHelpers.export(exports, "RESULTS_PER_PAGE", function () {
   return RESULTS_PER_PAGE;
 });
+_parcelHelpers.export(exports, "API_KEY", function () {
+  return API_KEY;
+});
 const API_URL = 'https://forkify-api.herokuapp.com/api/v2/recipes/';
 const TIMEOUT_SEC = 10;
 const RESULTS_PER_PAGE = 10;
+const API_KEY = '98a9f837-72b3-4e01-a3f1-9bb8fb6d9575';
 
 },{"@parcel/transformer-js/lib/esmodule-helpers.js":"5gA8y"}],"5gA8y":[function(require,module,exports) {
 "use strict";
@@ -1455,6 +1514,9 @@ _parcelHelpers.defineInteropFlag(exports);
 _parcelHelpers.export(exports, "Getjson", function () {
   return Getjson;
 });
+_parcelHelpers.export(exports, "Sendjson", function () {
+  return Sendjson;
+});
 var _config = require("./config");
 const timeout = function (s) {
   return new Promise(function (_, reject) {
@@ -1466,6 +1528,23 @@ const timeout = function (s) {
 const Getjson = async function (url) {
   try {
     const Recipe__Main = await Promise.race([fetch(url), timeout(_config.TIMEOUT_SEC)]);
+    const recipe__data = await Recipe__Main.json();
+    if (!Recipe__Main.ok) throw new Error(`${Recipe__Main.message} ${Recipe__Main.status}`);
+    return recipe__data;
+  } catch (error) {
+    throw error;
+  }
+};
+const Sendjson = async function (url, uploadData) {
+  try {
+    const fetchPost = fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(uploadData)
+    });
+    const Recipe__Main = await Promise.race([fetchPost, timeout(_config.TIMEOUT_SEC)]);
     const recipe__data = await Recipe__Main.json();
     if (!Recipe__Main.ok) throw new Error(`${Recipe__Main.message} ${Recipe__Main.status}`);
     return recipe__data;
@@ -13924,6 +14003,7 @@ var _viewsDefault = _parcelHelpers.interopDefault(_views);
 require('url:../../img/icons.svg');
 class addRecipeView extends _viewsDefault.default {
   parentElement = document.querySelector('.upload');
+  successMessage = 'Recipe Was Sucessfully Uploaded';
   windowElement = document.querySelector('.add-recipe-window');
   overlayElement = document.querySelector('.overlay');
   btnOpen = document.querySelector('.nav__btn--add-recipe');

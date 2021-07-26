@@ -18,3 +18,24 @@ export const Getjson = async function(url){
         throw error;
     }
 }
+
+
+export const Sendjson = async function(url,uploadData){
+  try {
+      const fetchPost = fetch(url,{
+        method : 'POST',
+        headers : {
+          'Content-Type' : 'application/json'
+        },
+        body : JSON.stringify(uploadData) 
+      })
+
+      const Recipe__Main = await Promise.race([fetchPost,timeout(TIMEOUT_SEC)]);   
+      const recipe__data = await Recipe__Main.json();
+      
+      if(!Recipe__Main.ok) throw new Error(`${Recipe__Main.message} ${Recipe__Main.status}`);
+      return recipe__data;
+  } catch (error) {
+      throw error;
+  }
+}

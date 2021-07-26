@@ -4,6 +4,7 @@ import icons from 'url:../../img/icons.svg';
 
 class addRecipeView extends view{
     parentElement = document.querySelector('.upload');
+    successMessage = 'Recipe Was Sucessfully Uploaded';
     windowElement = document.querySelector('.add-recipe-window');
     overlayElement = document.querySelector('.overlay');
     btnOpen = document.querySelector('.nav__btn--add-recipe');
