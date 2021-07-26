@@ -516,6 +516,10 @@ const controlAddRecipe = async function (newRecipe) {
     _viewsRecipeViewJsDefault.default.render(_modelJs.state.recipe);
     // Success Message
     _viewsAddrecipeViewJsDefault.default.renderSuccess();
+    // Render Bookmark
+    _viewsBookmarksViewJsDefault.default.render(_modelJs.state.bookmarks);
+    // Change Hash In URL
+    window.history.pushState(null, '', `#${_modelJs.state.recipe.id}`);
   } catch (err) {
     _viewsAddrecipeViewJsDefault.default.renderError(err.message);
   }
@@ -573,7 +577,7 @@ const state = {
 };
 const loadRecipe = async function (id) {
   try {
-    const data = await _helpers.Getjson(`${_config.API_URL}${id}`);
+    const data = await _helpers.Getjson(`${_config.API_URL}${id}?key=${_config.API_KEY}`);
     const recipe = data.data.recipe;
     state.recipe = {
       id: recipe.id,
@@ -597,7 +601,7 @@ const loadRecipe = async function (id) {
 const LoadSearchResults = async function (Query) {
   try {
     state.search.query = Query;
-    const data = await _helpers.Getjson(`${_config.API_URL}?search=${Query}`);
+    const data = await _helpers.Getjson(`${_config.API_URL}?search=${Query}&key=${_config.API_KEY}`);
     state.search.results = data.data.recipes;
     state.search.results.map(recipe => {
       return {
@@ -1621,8 +1625,10 @@ class RecipeView extends _viewsDefault.default {
                 </div>
                 </div>
 
-                <div class="recipe__user-generated">
-                
+                <div class="recipe__user-generated ${this.data.key ? '' : 'hidden'}">
+                    <svg>
+                        <use href="${_urlImgIconsSvgDefault.default}#icon-user"></use>
+                    </svg>
                 </div>
                 <button class="btn--round btn--bookmark">
                     <svg class="">
